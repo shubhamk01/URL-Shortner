@@ -1,0 +1,4 @@
+{
+  "scenario": "greenfield",
+  "requirement": "Create a URL shortener with click analytics."
+}

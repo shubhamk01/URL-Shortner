@@ -1,0 +1,4 @@
+{
+  "scenario": "brownfield",
+  "requirement": "Add analytics to existing short URLs without breaking redirection."
+}
