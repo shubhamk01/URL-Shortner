@@ -247,6 +247,7 @@ ignored local directories may include `.data/` (SQLite database), `.venv/`
 | File | Purpose |
 |---|---|
 | `tests/conftest.py` | Adds the source tree to the test import path. |
+| `tests/unit/test_application_guide.py` | Checks guide links, code fences, scenario references, and source/test inventory coverage. |
 | `tests/unit/test_codegen.py` | Short-code length/alphabet/generation checks. |
 | `tests/unit/test_repository.py` | SQLite persistence, uniqueness, and click-event tests. |
 | `tests/unit/test_url_service.py` | URL validation, expiry, collisions, redirect resolution, analytics tests. |
