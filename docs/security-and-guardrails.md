@@ -20,6 +20,10 @@ The runtime Copilot adapter passes an empty `available_tools` list to each SDK s
 - **Safe-stop**: `engine.request_safe_stop()` stops all *new* scheduling immediately; already-running tasks are allowed to finish (a prototype cannot safely force-kill a live subprocess — documented limitation, not claimed otherwise).
 - **Rollback**: `engine.rollback_task()` only reverses a `FAILED` task's own recorded artifact writes; anything not reliably reversible is left for a human.
 
+## Dependency security gate
+
+CI runs `python -m pip_audit --skip-editable` to scan installed third-party packages. The local editable `agentic-engineer` package is excluded because it is not published on PyPI; its dependencies are still audited. Advisory `PYSEC-2026-3447` affected setuptools 79.0.1 and lists 83.0.0 as fixed, so both the PEP 517 build-system requirement and the dev/CI environment require `setuptools>=83.0.0`. A local rescan after that change reported no known third-party vulnerabilities.
+
 ## Threat model notes for the prototype
 - Requirement text and any agent/tool output are treated as **data**, never as trusted instructions — the rule-based requirement analyzer does not execute or interpret the text as commands, and no agent can expand its own permissions based on what it reads.
 - Credentials (`AI_API_KEY`) are read from the environment only; they are never interpolated into prompts, file artifacts, or audit logs.

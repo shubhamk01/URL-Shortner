@@ -99,7 +99,10 @@ See [docs/testing.md](docs/testing.md) for what each layer covers.
 
 Pull requests and pushes to `main`/`master` run [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 on Python 3.11 and 3.12. CI runs pytest, audits installed dependencies with
-`pip-audit`, builds a wheel, and uploads test/package evidence. It forces
+`pip-audit --skip-editable`, builds a wheel, and uploads test/package evidence.
+The project requires setuptools 83.0.0 or newer for builds and CI to address
+`PYSEC-2026-3447`. The audit skips the local editable project but audits its
+third-party dependencies. CI forces
 `AI_PROVIDER=mock`, so CI never needs Copilot credentials.
 To make this a merge gate, configure the repository ruleset/branch protection to
 require both `Verify Python 3.11` and `Verify Python 3.12` checks; workflow YAML

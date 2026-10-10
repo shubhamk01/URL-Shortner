@@ -8,7 +8,7 @@
 | Integration | `tests/integration/` | FastAPI endpoints via `TestClient`: create, redirect, metadata, analytics, invalid input, unknown code. |
 | Orchestration unit | `tests/scenarios/test_orchestrator.py` | The workflow engine in isolation, using lightweight fake agents (no real subprocess pytest calls): dependencies, parallel execution, synchronization, retries/repair, approval rejection, safe-stop, blocked validation, audit/rollback/metrics, replanning, release approval rejection, and operations-handoff topology. |
 | Scenario (end-to-end) | `tests/scenarios/test_scenarios.py` | Runs the real pipeline (real agents, real pytest-based validation) for all three scenarios; verifies release candidate manifest and explicit `NOT_DEPLOYED` operations handoff. |
-| CI | `.github/workflows/ci.yml` | Pull request/push quality gate on Python 3.11/3.12: pytest, `pip-audit --skip-editable` third-party dependency scan, wheel build, and uploaded test/package artifacts. The local editable project itself is excluded from PyPI advisory lookup. Uses `AI_PROVIDER=mock`; it does not deploy. |
+| CI | `.github/workflows/ci.yml` | Pull request/push quality gate on Python 3.11/3.12: pytest, `pip-audit --skip-editable` third-party dependency scan, wheel build, and uploaded test/package artifacts. The local editable project itself is excluded from PyPI advisory lookup. Uses `AI_PROVIDER=mock`; it does not deploy. The setuptools floor is 83.0.0 to address `PYSEC-2026-3447`. |
 
 ## Running tests
 
