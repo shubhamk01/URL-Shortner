@@ -11,25 +11,55 @@ The repository contains two related applications:
 
 The workflow is the main demonstration. It is a governed SDLC **prototype**, not a production deployment platform. The Developer agent proposes source changes as artifacts; it does not patch the source tree. Release approval records a candidate, while deployment remains explicitly `NOT_DEPLOYED`.
 
-## Run it
+## Set up and run it
+
+Run commands from the repository root. Python 3.11 or newer is required; the
+project was tested locally with Python 3.12. On Windows, create a virtual
+environment and install the application plus development tools:
 
 ```powershell
-# Start the URL shortener API
-python -m agentic_engineer.cli serve
-
-# Run a scenario with the configured provider (Copilot by default)
-python -m agentic_engineer.cli run --example examples/greenfield.json
-
-# Use deterministic mock responses for offline runs
-$env:AI_PROVIDER = "mock"
-python -m agentic_engineer.cli run --example examples/greenfield.json --auto-approve
-
-# Inspect a run and its reliability metrics
-python -m agentic_engineer.cli inspect <run_id>
-python -m agentic_engineer.cli metrics --run-id <run_id>
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 ```
 
-Live Copilot calls require CLI/token authentication. `--auto-approve` is demo convenience, not a production approval policy.
+The Copilot SDK is installed by the normal project dependencies. Before a live
+Copilot run, authenticate using the Copilot CLI or provide one of the supported
+GitHub token environment variables. The application reads settings from the
+process environment; `.env.example` is a reference and is not automatically
+loaded as a dotenv file.
+
+```powershell
+# Run a scenario with the configured provider (Copilot by default)
+.\.venv\Scripts\python.exe -m agentic_engineer.cli run --example examples/greenfield.json
+
+# Brownfield and clarification-gated scenarios
+.\.venv\Scripts\python.exe -m agentic_engineer.cli run --example examples/brownfield.json
+.\.venv\Scripts\python.exe -m agentic_engineer.cli run --example examples/ambiguous.json
+
+# Supply a custom requirement; --auto-approve is demo convenience only
+.\.venv\Scripts\python.exe -m agentic_engineer.cli run --requirement "Create a URL shortener with click analytics." --auto-approve
+
+# Start the URL shortener API
+.\.venv\Scripts\python.exe -m agentic_engineer.cli serve
+
+# Inspect a run and its reliability metrics
+.\.venv\Scripts\python.exe -m agentic_engineer.cli inspect <run_id>
+.\.venv\Scripts\python.exe -m agentic_engineer.cli metrics --run-id <run_id>
+```
+
+To run deterministically without Copilot authentication, set the provider to
+`mock` in the current shell and pass `--auto-approve` if the scenario should
+not pause at approval gates:
+
+```powershell
+$env:AI_PROVIDER = "mock"
+.\.venv\Scripts\python.exe -m agentic_engineer.cli run --example examples/greenfield.json --auto-approve
+```
+
+`run` prints a `run_id` and completion status. A normal run retains human
+approval gates; `--auto-approve` approves every gate and is not a production
+approval policy. See [scenarios.md](scenarios.md) for the expected results and
+clarification flow. Use [api.md](api.md) for HTTP routes and request examples.
 
 ## End-to-end workflow
 
@@ -111,13 +141,30 @@ A retry/re-execution can add calls. If `AI_PROVIDER=mock`, these calls are skipp
 
 **This application does not currently calculate or persist Copilot token usage or AI credits.** Its `observability/metrics.py` reports workflow reliability (run success, retry/rollback frequency, latency, MTTR), not model spend. `CopilotModelAdapter` also does not currently read SDK usage metrics or write token counts into audit events. Therefore this repository cannot provide an exact per-run credit total; role-call counts above are only a rough request count.
 
-Copilot charges/credit usage depend on the selected model, input and output tokens, model billing rates/multipliers, and applicable account plan. Prompt and response sizes differ, so do not equate “one call” with a fixed number of credits. Check the authoritative account usage/billing view in GitHub; account billing policies can change.
+As of June 1, 2026, GitHub's current Copilot billing model is usage-based: cost
+depends on the selected model and the input, output, and cached tokens consumed.
+GitHub's pricing documentation defines one AI Credit as $0.01 USD and describes
+plan allowances and additional-usage billing. Legacy annual plans may retain
+request-based billing rules, so the account's plan and GitHub's current billing
+page remain authoritative. Prompt and response sizes vary; never equate one
+application model call with a fixed credit cost or rely on a copied model-price
+table.
 
-The current Copilot SDK documents session usage telemetry (`session.rpc.usage.get_metrics()` in Python) and runtime model billing token prices (`client.rpc.models.list()`). The application closes each session after its response and does not currently call either API. A future implementation could capture per-session input/output token details and SDK-reported usage before disconnect, persist the raw usage facts with the run/task/model IDs, then present a clearly labeled estimate. It should not hard-code model prices or claim a credit conversion without checking current billing semantics.
+The Copilot SDK exposes per-session usage through
+`session.rpc.usage.get_metrics()` and model pricing through
+`client.rpc.models.list()`. In this application, each completion creates a
+short-lived client and session; the session is disconnected immediately after
+the response, and the adapter does not read or persist usage metrics. A future
+meter would need to capture metrics before disconnecting, associate them with
+the run/task/model, and clearly distinguish raw SDK measurements from billed
+account totals. The SDK documentation shows a nano-AIU conversion example, but
+the application should verify that conversion against the current GitHub billing
+definitions before presenting a per-run AI Credit total.
 
 References:
 - [Copilot SDK usage and billing](https://docs.github.com/en/copilot/how-tos/copilot-sdk/features/usage-and-billing)
 - [GitHub Copilot billing and usage](https://docs.github.com/en/copilot/concepts/billing-and-usage)
+- [GitHub Copilot model pricing](https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing)
 
 ## Persisted run evidence and metrics
 
@@ -130,6 +177,10 @@ Each `.runs/<run_id>/` directory contains:
 - `artifacts/`: requirement and normalized requirement, design/proposal docs, proposed-test notes, executed pytest reports, readiness report, release manifest, operations runbook, and final summary.
 
 Reliability metrics are computed from `events.jsonl`; no model token/credit totals are currently in those metrics. Use `cli inspect <run_id>` for the graph/audit trail and `cli metrics` for aggregate reliability measures.
+
+These generated run files are local evidence, not tracked source files. Other
+ignored local directories may include `.data/` (SQLite database), `.venv/`
+(Python environment), `build/` and `dist/` (package outputs), and test caches.
 
 ## File-by-file map
 
@@ -215,6 +266,7 @@ Reliability metrics are computed from `events.jsonl`; no model token/credit tota
 | `docs/security-and-guardrails.md` | Approval, policy, privacy, and security controls. |
 | `docs/testing.md` | Test layers and CI verification approach. |
 | `docs/tradeoffs-and-limitations.md` | Deliberate simplifications and production gaps. |
+| `docs/application-guide.md` | This end-to-end workflow, AI usage, billing caveats, run evidence, and file inventory. |
 | `examples/greenfield.json` | New URL-shortener requirement. |
 | `examples/brownfield.json` | Backward-compatible analytics requirement. |
 | `examples/ambiguous.json` | Requirement requiring clarification. |
