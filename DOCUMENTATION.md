@@ -7,6 +7,7 @@ Single entry point for every document in this repository.
 | Document | What it's for |
 |---|---|
 | [README.md](README.md) | Project overview, setup, how to run the URL shortener and the three demo scenarios, test commands. |
+| [docs/application-guide.md](docs/application-guide.md) | End-to-end workflow, AI role/call map, Copilot credit-usage caveats, persisted evidence, and file-by-file source/test/docs inventory. |
 | [AGENTS.md](AGENTS.md) | Instructions for AI coding agents (e.g. GitHub Copilot) working **on** this repo's source — build/test commands, directory map, hard rules. |
 | [SKILLS.md](SKILLS.md) | Catalog of the runtime agent roles the orchestration engine dispatches (Planner/Developer/Tester/Documentation + bookkeeping skills) — what each produces and is/isn't permitted to do. |
 | [.github/instructions/functionality.instructions.md](.github/instructions/functionality.instructions.md) | Product behavior, URL API contracts, scenario flows, and functional acceptance rules. |
@@ -21,7 +22,7 @@ Single entry point for every document in this repository.
 | [docs/security-and-guardrails.md](docs/security-and-guardrails.md) | Human approval checkpoints, guardrails (URL/command allow-lists, path sandboxing, redaction, bounded retries/safe-stop/rollback), threat-model notes. |
 | [docs/testing.md](docs/testing.md) | Test layers (unit/integration/orchestrator/end-to-end scenario), how to run each, what's deterministic vs. real. |
 | [docs/scenarios.md](docs/scenarios.md) | How to reproduce the three required demonstration scenarios (greenfield, brownfield, ambiguous) and what evidence each produces. |
-| [docs/tradeoffs-and-limitations.md](docs/tradeoffs-and-limitations.md) | Honest account of what was simplified and why, including the optional (not live-tested) GitHub Copilot SDK integration. |
+| [docs/tradeoffs-and-limitations.md](docs/tradeoffs-and-limitations.md) | Honest account of what was simplified and why, including the tool-disabled Copilot integration and remaining production gaps. |
 
 ## Quick links by task
 

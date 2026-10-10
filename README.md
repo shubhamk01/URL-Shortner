@@ -11,6 +11,9 @@ The demonstration application is a URL shortener (create, redirect, click
 analytics). **The primary thing being evaluated here is the agentic orchestration
 layer**, not the URL-shortening API by itself.
 
+For an end-to-end workflow walkthrough, Copilot call/credit accounting, and a
+file-by-file map, see [docs/application-guide.md](docs/application-guide.md).
+
 See [docs/architecture.md](docs/architecture.md) for the full design,
 [docs/scenarios.md](docs/scenarios.md) for the three required demonstrations, and
 [docs/tradeoffs-and-limitations.md](docs/tradeoffs-and-limitations.md) for an honest
